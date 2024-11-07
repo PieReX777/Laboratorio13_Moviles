@@ -20,7 +20,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             Lab13Theme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    AnimatedBoxScreen(
+                    ColorChangingBoxScreen(  // Cambia aquí de AnimatedBoxScreen a ColorChangingBoxScreen
                         modifier = Modifier.padding(innerPadding)
                     )
                 }

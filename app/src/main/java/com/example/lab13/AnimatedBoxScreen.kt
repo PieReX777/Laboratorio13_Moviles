@@ -27,6 +27,14 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.animation.*
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.Text
+import androidx.compose.runtime.*
+import androidx.compose.ui.unit.dp
 
 @Composable
 fun AnimatedBoxScreen(modifier: Modifier = Modifier) {
@@ -118,4 +126,60 @@ fun ColorChangingBoxScreen(modifier: Modifier = Modifier) {
 @Composable
 fun ColorChangingBoxScreenPreview() {
     ColorChangingBoxScreen()
+}
+
+enum class ScreenState { Cargando, Contenido, Error }
+
+@OptIn(ExperimentalAnimationApi::class)
+@Composable
+fun StatusScreen(modifier: Modifier = Modifier) {
+    var currentState by remember { mutableStateOf(ScreenState.Cargando) }
+
+    Column(
+        modifier = modifier.fillMaxSize().padding(16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Button(onClick = {
+            currentState = when (currentState) {
+                ScreenState.Cargando -> ScreenState.Contenido
+                ScreenState.Contenido -> ScreenState.Error
+                ScreenState.Error -> ScreenState.Cargando
+            }
+        }) {
+            Text(text = "Cambiar Estado")
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        AnimatedContent(
+            targetState = currentState,
+            transitionSpec = {
+                fadeIn(animationSpec = tween(500)) with fadeOut(animationSpec = tween(500))
+            }
+        ) { state ->
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp)
+                    .background(
+                        when (state) {
+                            ScreenState.Cargando -> Color.Yellow
+                            ScreenState.Contenido -> Color.Green
+                            ScreenState.Error -> Color.Red
+                        }
+                    )
+                    .padding(16.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = when (state) {
+                        ScreenState.Cargando -> "Cargando..."
+                        ScreenState.Contenido -> "Contenido Cargado"
+                        ScreenState.Error -> "Error al Cargar"
+                    },
+                    color = Color.White
+                )
+            }
+        }
+    }
 }

@@ -19,6 +19,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
@@ -29,33 +30,44 @@ import androidx.compose.ui.unit.dp
 
 @Composable
 fun AnimatedBoxScreen(modifier: Modifier = Modifier) {
-    // Estado para manejar la visibilidad
-    var isVisible by remember { mutableStateOf(false) }
+    var isVisible by remember { mutableStateOf(true) }
+    var moveBox by remember { mutableStateOf(false) }
+
+    val boxSize by animateDpAsState(targetValue = if (moveBox) 150.dp else 100.dp)
+    val boxOffsetX by animateDpAsState(targetValue = if (moveBox) 100.dp else 0.dp)
+    val boxOffsetY by animateDpAsState(targetValue = if (moveBox) 200.dp else 0.dp)
 
     Column(
-        modifier = modifier.fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+        modifier = modifier.fillMaxSize().padding(16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // Botón para alternar la visibilidad
         Button(onClick = { isVisible = !isVisible }) {
-            Text(text = if (isVisible) "Ocultar cuadro" else "Mostrar cuadro")
+            Text(text = if (isVisible) "Ocultar Cuadro" else "Mostrar Cuadro")
         }
 
-        // Animación de visibilidad para el cuadro
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Button(onClick = { moveBox = !moveBox }) {
+            Text(text = "Mover y Cambiar Tamaño")
+        }
+
+        Spacer(modifier = Modifier.weight(1f))
+
         AnimatedVisibility(
             visible = isVisible,
-            enter = fadeIn(),
-            exit = fadeOut()
+            enter = fadeIn(animationSpec = tween(durationMillis = 800)),
+            exit = fadeOut(animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy))
         ) {
             Box(
                 modifier = Modifier
-                    .size(100.dp)
+                    .offset(x = boxOffsetX, y = boxOffsetY)
+                    .size(boxSize)
                     .background(Color.Blue)
             )
         }
     }
 }
+
 
 @Composable
 fun ColorChangingBoxScreen(modifier: Modifier = Modifier) {
